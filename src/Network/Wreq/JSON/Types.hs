@@ -17,7 +17,7 @@ data family Response a
 class ToURL a where
   toURL :: a -> [Text]
 
-class Monad m => ToOptions a m where
+class Monad m => ToOptions m a where
   toOptions :: a -> m W.Options
   toOptions _ = return W.defaults
 

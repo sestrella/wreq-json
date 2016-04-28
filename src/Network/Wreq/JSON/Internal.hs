@@ -1,3 +1,4 @@
+{-# LANGUAGE ConstraintKinds       #-}
 {-# LANGUAGE FlexibleContexts      #-}
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -23,26 +24,22 @@ data ClientError
 instance Eq ClientError where
   (==) = undefined
 
-get :: (ToURL a, FromResponse (Response a), MonadIO m, MonadError ClientError m)
-    => a
-    -> m (Response a)
+type MonadClient m = (MonadIO m, MonadError ClientError m)
+type MonadResponse m a = (MonadClient m, FromResponse (Response a))
+type MonadRequest m a = (MonadResponse m a, ToURL a)
+
+get :: MonadRequest m a => a -> m (Response a)
 get = run . W.get . url
 
-getWith :: (ToURL a, ToOptions a m, FromResponse (Response a), MonadIO m, MonadError ClientError m)
-        => a
-        -> m (Response a)
+getWith :: (MonadRequest m a, ToOptions m a) => a -> m (Response a)
 getWith request = do
   options <- toOptions request
   run $ W.getWith options (url request)
 
-post :: (ToURL a, ToJSON a, FromResponse (Response a), MonadIO m, MonadError ClientError m)
-     => a
-     -> m (Response a)
+post :: (MonadRequest m a, ToJSON a) => a -> m (Response a)
 post request = run $ W.post (url request) (toJSON request)
 
-run :: (FromResponse (Response a), MonadIO m, MonadError ClientError m)
-    => IO (W.Response ByteString)
-    -> m (Response a)
+run :: MonadResponse m a => IO (W.Response ByteString) -> m (Response a)
 run request = do
   eitherResponse <- liftIO $ try request
   case eitherResponse of

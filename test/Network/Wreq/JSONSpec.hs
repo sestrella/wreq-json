@@ -36,7 +36,7 @@ data BasicAuth = BasicAuth
 instance ToURL BasicAuth where
   toURL _ = ["http://httpbin.org", "basic-auth", "user", "password"]
 
-instance MonadReader (ByteString, ByteString) m => ToOptions BasicAuth m where
+instance MonadReader (ByteString, ByteString) m => ToOptions m BasicAuth where
   toOptions _ = do
     (user, password) <- ask
     return $ W.defaults & W.auth ?~ W.basicAuth user password
