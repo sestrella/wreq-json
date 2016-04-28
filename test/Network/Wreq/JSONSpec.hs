@@ -2,10 +2,10 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeFamilies      #-}
 
-module LibSpec where
+module Network.Wreq.JSONSpec where
 
 import           Data.Aeson
-import           Lib
+import           Network.Wreq.JSON
 import           Test.Hspec
 
 data Get = Get

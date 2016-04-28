@@ -4,7 +4,7 @@
 {-# LANGUAGE TypeFamilies         #-}
 {-# LANGUAGE UndecidableInstances #-}
 
-module Lib where
+module Network.Wreq.JSON where
 
 import           Control.Lens
 import           Data.Aeson

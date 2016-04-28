@@ -14,7 +14,7 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
-  exposed-modules:     Lib
+  exposed-modules:     Network.Wreq.JSON
   build-depends:       base >= 4.7 && < 5
                      , aeson
                      , bytestring
@@ -27,7 +27,7 @@ test-suite wreq-json-test
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
   main-is:             Spec.hs
-  other-modules:       LibSpec
+  other-modules:       Network.Wreq.JSONSpec
   build-depends:       base
                      , aeson
                      , hspec
