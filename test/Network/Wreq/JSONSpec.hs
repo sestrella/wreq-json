@@ -4,6 +4,7 @@
 
 module Network.Wreq.JSONSpec where
 
+import           Control.Monad.Except
 import           Data.Aeson
 import           Data.Text
 import           Network.Wreq.JSON
@@ -44,8 +45,12 @@ spec :: Spec
 spec = do
   describe "get" $
     it "returns the requested url" $
-      get Get `shouldReturn` Right (GetResponse "http://httpbin.org/get")
+      runExceptT (get Get)
+        `shouldReturn`
+          Right (GetResponse "http://httpbin.org/get")
 
   describe "post" $
     it "returns the requested url" $
-      post Post `shouldReturn` Right (PostResponse "http://httpbin.org/post")
+      runExceptT (post Post)
+        `shouldReturn`
+          Right (PostResponse "http://httpbin.org/post")
