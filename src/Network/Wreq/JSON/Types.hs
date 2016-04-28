@@ -7,7 +7,6 @@ module Network.Wreq.JSON.Types where
 
 import           Control.Lens
 import           Data.Aeson
-import           Data.Aeson
 import           Data.ByteString.Lazy
 import           Data.Text
 import qualified Network.Wreq         as W
@@ -22,4 +21,3 @@ class FromResponse a where
 
 instance FromJSON a => FromResponse a where
   fromResponse response = eitherDecode (response ^. W.responseBody)
-
