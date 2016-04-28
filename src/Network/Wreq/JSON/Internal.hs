@@ -9,6 +9,8 @@ module Network.Wreq.JSON.Internal
   , getWith
   , post
   , postWith
+  , put
+  , putWith
   ) where
 
 import           Control.Exception
@@ -35,11 +37,22 @@ post request = do
   url <- getURL request
   run $ W.post url (toJSON request)
 
-postWith :: (MonadRequest m a, ToJSON a, ToOptions m a) => a -> m (Response a)
+postWith :: (MonadRequest m a, MonadOptions m a) => a -> m (Response a)
 postWith request = do
   options <- toOptions request
   url <- getURL request
   run $ W.postWith options url (toJSON request)
+
+put :: (MonadRequest m a, ToJSON a) => a -> m (Response a)
+put request = do
+  url <- getURL request
+  run $ W.put url (toJSON request)
+
+putWith :: (MonadRequest m a, MonadOptions m a) => a -> m (Response a)
+putWith request = do
+  options <- toOptions request
+  url <- getURL request
+  run $ W.putWith options url (toJSON request)
 
 run :: MonadResponse m a => IO (W.Response ByteString) -> m (Response a)
 run request = do

@@ -18,6 +18,7 @@ import qualified Network.Wreq         as W
 type MonadClient m = (MonadIO m, MonadError ClientError m)
 type MonadResponse m a = (MonadClient m, FromResponse (Response a))
 type MonadRequest m a = (MonadResponse m a, ToURL m a)
+type MonadOptions m a = (ToOptions m a, ToJSON a)
 
 data ClientError
   = ClientHttpError HttpException

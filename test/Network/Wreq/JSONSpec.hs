@@ -93,6 +93,43 @@ instance FromJSON (Response PostWithHeader) where
     withObject "PostWithHeaderResponse" $ \o ->
       PostWithHeaderResponse <$> o .: "headers"
 
+data Put = Put
+
+instance Monad m => ToURL m Put where
+  toURL _ = return ["http://httpbin.org", "put"]
+
+instance ToJSON Put where
+  toJSON _ = object []
+
+data instance (Response Put) = PutResponse Text
+  deriving (Eq, Show)
+
+instance FromJSON (Response Put) where
+  parseJSON =
+    withObject "PutResponse" $ \o ->
+      PutResponse <$> o .: "url"
+
+data PutWithHeader = PutWithHeader
+
+instance Monad m => ToURL m PutWithHeader where
+  toURL _ = return ["http://httpbin.org", "put"]
+
+instance ToJSON PutWithHeader where
+  toJSON _ = object []
+
+instance MonadReader ByteString m => ToOptions m PutWithHeader where
+  toOptions _ = do
+    header <- ask
+    return $ W.defaults & W.header "Custom-Header" .~ [header]
+
+data instance (Response PutWithHeader) = PutWithHeaderResponse CustomHeader
+  deriving (Eq, Show)
+
+instance FromJSON (Response PutWithHeader) where
+  parseJSON =
+    withObject "PutWithHeaderResponse" $ \o ->
+      PutWithHeaderResponse <$> o .: "headers"
+
 spec :: Spec
 spec = do
   describe "get" $
@@ -102,7 +139,7 @@ spec = do
           Right (GetResponse "http://httpbin.org/get")
 
   describe "getWith" $
-    it "authenticates using basic auth" $ do
+    it "authenticates using basic auth" $
       runReaderT (runExceptT (getWith BasicAuth)) ("user", "password")
         `shouldReturn`
           Right (BasicAuthResponse True)
@@ -114,7 +151,19 @@ spec = do
           Right (PostResponse "http://httpbin.org/post")
 
   describe "postWith" $
-    it "returns the header sent" $ do
+    it "returns the header sent" $
       runReaderT (runExceptT (postWith PostWithHeader)) "value"
         `shouldReturn`
           Right (PostWithHeaderResponse (CustomHeader "value"))
+
+  describe "put" $
+    it "returns the requested url" $
+      runExceptT (put Put)
+        `shouldReturn`
+          Right (PutResponse "http://httpbin.org/put")
+
+  describe "putWith" $
+    it "returns the requested url" $
+      runReaderT (runExceptT (putWith PutWithHeader)) "value"
+        `shouldReturn`
+          Right (PutWithHeaderResponse (CustomHeader "value"))
