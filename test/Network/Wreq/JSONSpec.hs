@@ -20,11 +20,32 @@ data instance Response Get = GetResponse
 
 instance FromJSON (Response Get) where
   parseJSON =
-    withObject "Response Get" $ \o ->
+    withObject "GetResponse" $ \o ->
       GetResponse <$> o .: "url"
 
+data Post = Post
+
+instance ToURL Post where
+  toURL _ = ["http://httpbin.org", "post"]
+
+instance ToJSON Post where
+  toJSON _ = object []
+
+data instance Response Post = PostResponse
+  { postResponseUrl :: Text
+  } deriving (Eq, Show)
+
+instance FromJSON (Response Post) where
+  parseJSON =
+    withObject "PostResponse" $ \o ->
+      PostResponse <$> o .: "url"
+
 spec :: Spec
-spec =
+spec = do
   describe "get" $
     it "returns the requested url" $
       get Get `shouldReturn` Right (GetResponse "http://httpbin.org/get")
+
+  describe "post" $
+    it "returns the requested url" $
+      post Post `shouldReturn` Right (PostResponse "http://httpbin.org/post")
