@@ -130,6 +130,40 @@ instance FromJSON (Response PutWithHeader) where
     withObject "PutWithHeaderResponse" $ \o ->
       PutWithHeaderResponse <$> o .: "headers"
 
+data Delete = Delete
+
+instance Monad m => ToURL m Delete where
+  toURL _ = return ["http://httpbin.org", "delete"]
+
+data instance Response Delete = DeleteResponse Text
+  deriving (Eq, Show)
+
+instance FromJSON (Response Delete) where
+  parseJSON =
+    withObject "DeleteResponse" $ \o ->
+      DeleteResponse <$> o .: "url"
+
+data DeleteWithHeader = DeleteWithHeader
+
+instance Monad m => ToURL m DeleteWithHeader where
+  toURL _ = return ["http://httpbin.org", "delete"]
+
+instance ToJSON DeleteWithHeader where
+  toJSON _ = object []
+
+instance MonadReader ByteString m => ToOptions m DeleteWithHeader where
+  toOptions _ = do
+    header <- ask
+    return $ W.defaults & W.header "Custom-Header" .~ [header]
+
+data instance Response DeleteWithHeader = DeleteWithHeaderResponse CustomHeader
+  deriving (Eq, Show)
+
+instance FromJSON (Response DeleteWithHeader) where
+  parseJSON =
+    withObject "DeleteWithHeaderResponse" $ \o ->
+      DeleteWithHeaderResponse <$> o .: "headers"
+
 spec :: Spec
 spec = do
   describe "get" $
@@ -167,3 +201,15 @@ spec = do
       runReaderT (runExceptT (putWith PutWithHeader)) "value"
         `shouldReturn`
           Right (PutWithHeaderResponse (CustomHeader "value"))
+
+  describe "delete" $
+    it "returns the requested url" $
+      runExceptT (delete Delete)
+        `shouldReturn`
+          Right (DeleteResponse "http://httpbin.org/delete")
+
+  describe "deleteWith" $
+    it "returns the header sent" $
+      runReaderT (runExceptT (deleteWith DeleteWithHeader)) "value"
+        `shouldReturn`
+          Right (DeleteWithHeaderResponse (CustomHeader "value"))

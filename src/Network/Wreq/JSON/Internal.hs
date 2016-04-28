@@ -11,6 +11,8 @@ module Network.Wreq.JSON.Internal
   , postWith
   , put
   , putWith
+  , delete
+  , deleteWith
   ) where
 
 import           Control.Exception
@@ -53,6 +55,17 @@ putWith request = do
   options <- toOptions request
   url <- getURL request
   run $ W.putWith options url (toJSON request)
+
+delete :: MonadRequest m a => a -> m (Response a)
+delete request = do
+  url <- getURL request
+  run $ W.delete url
+
+deleteWith :: (MonadRequest m a, MonadOptions m a) => a -> m (Response a)
+deleteWith request = do
+  options <- toOptions request
+  url <- getURL request
+  run $ W.deleteWith options url
 
 run :: MonadResponse m a => IO (W.Response ByteString) -> m (Response a)
 run request = do
