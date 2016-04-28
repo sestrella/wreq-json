@@ -1,7 +1,8 @@
-{-# LANGUAGE FlexibleContexts     #-}
-{-# LANGUAGE FlexibleInstances    #-}
-{-# LANGUAGE TypeFamilies         #-}
-{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE FlexibleContexts      #-}
+{-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE TypeFamilies          #-}
+{-# LANGUAGE UndecidableInstances  #-}
 
 module Network.Wreq.JSON.Types where
 
@@ -15,6 +16,10 @@ data family Response a
 
 class ToURL a where
   toURL :: a -> [Text]
+
+class Monad m => ToOptions a m where
+  toOptions :: a -> m W.Options
+  toOptions _ = return W.defaults
 
 class FromResponse a where
   fromResponse :: (W.Response ByteString) -> Either String a

@@ -28,6 +28,13 @@ get :: (ToURL a, FromResponse (Response a), MonadIO m, MonadError ClientError m)
     -> m (Response a)
 get = run . W.get . url
 
+getWith :: (ToURL a, ToOptions a m, FromResponse (Response a), MonadIO m, MonadError ClientError m)
+        => a
+        -> m (Response a)
+getWith request = do
+  options <- toOptions request
+  run $ W.getWith options (url request)
+
 post :: (ToURL a, ToJSON a, FromResponse (Response a), MonadIO m, MonadError ClientError m)
      => a
      -> m (Response a)
