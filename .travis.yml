@@ -1,0 +1,14 @@
+cache:
+  directories:
+    - $HOME/.stack
+
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y libgmp3-dev
+  - mkdir -p ~/.local/bin
+  - export PATH=$HOME/.local/bin:$PATH
+  - travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
+
+script:
+  - stack --no-terminal --skip-ghc-check setup
+  - stack --no-terminal --skip-ghc-check test
