@@ -163,7 +163,7 @@ spec = do
           Right (PutResponse "http://httpbin.org/put")
 
   describe "putWith" $
-    it "returns the requested url" $
+    it "returns the header sent" $
       runReaderT (runExceptT (putWith PutWithHeader)) "value"
         `shouldReturn`
           Right (PutWithHeaderResponse (CustomHeader "value"))
