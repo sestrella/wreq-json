@@ -1,4 +1,3 @@
-{-# LANGUAGE ConstraintKinds       #-}
 {-# LANGUAGE FlexibleContexts      #-}
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -12,21 +11,8 @@ import           Control.Monad.Except
 import           Data.Aeson
 import           Data.ByteString.Lazy
 import qualified Data.Text               as T
-import           Network.HTTP.Client     (HttpException)
 import qualified Network.Wreq            as W
 import           Network.Wreq.JSON.Types
-
-data ClientError
-  = ClientHttpError HttpException
-  | ClientDecodeError String
-  deriving Show
-
-instance Eq ClientError where
-  (==) = undefined
-
-type MonadClient m = (MonadIO m, MonadError ClientError m)
-type MonadResponse m a = (MonadClient m, FromResponse (Response a))
-type MonadRequest m a = (MonadResponse m a, ToURL a)
 
 get :: MonadRequest m a => a -> m (Response a)
 get = run . W.get . url

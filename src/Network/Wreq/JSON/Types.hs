@@ -1,3 +1,4 @@
+{-# LANGUAGE ConstraintKinds       #-}
 {-# LANGUAGE FlexibleContexts      #-}
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -7,10 +8,24 @@
 module Network.Wreq.JSON.Types where
 
 import           Control.Lens
+import           Control.Monad.Except
 import           Data.Aeson
 import           Data.ByteString.Lazy
 import           Data.Text
+import           Network.HTTP.Client  (HttpException)
 import qualified Network.Wreq         as W
+
+type MonadClient m = (MonadIO m, MonadError ClientError m)
+type MonadResponse m a = (MonadClient m, FromResponse (Response a))
+type MonadRequest m a = (MonadResponse m a, ToURL a)
+
+data ClientError
+  = ClientHttpError HttpException
+  | ClientDecodeError String
+  deriving Show
+
+instance Eq ClientError where
+  (==) = undefined
 
 data family Response a
 
