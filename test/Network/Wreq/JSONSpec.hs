@@ -5,6 +5,7 @@
 module Network.Wreq.JSONSpec where
 
 import           Data.Aeson
+import           Data.Text
 import           Network.Wreq.JSON
 import           Test.Hspec
 
@@ -14,7 +15,7 @@ instance ToURL Get where
   toURL _ = ["http://httpbin.org", "get"]
 
 data instance Response Get = GetResponse
-  { getResponseUrl :: String
+  { getResponseUrl :: Text
   } deriving (Eq, Show)
 
 instance FromJSON (Response Get) where
