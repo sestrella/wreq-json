@@ -114,7 +114,7 @@ spec = do
           Right (PostResponse "http://httpbin.org/post")
 
   describe "postWith" $
-    it "authenticates using basic auth" $ do
+    it "returns the header sent" $ do
       runReaderT (runExceptT (postWith PostWithHeader)) "value"
         `shouldReturn`
           Right (PostWithHeaderResponse (CustomHeader "value"))
