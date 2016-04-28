@@ -7,8 +7,8 @@ license:             BSD3
 license-file:        LICENSE
 author:              Sebastián Estrella
 maintainer:          sebas007estrella@gmail.com
-copyright:           2016 Author name here
-category:            Web
+copyright:           2016 Sebastián Estrella
+category:            Network
 build-type:          Simple
 cabal-version:       >=1.10
 
