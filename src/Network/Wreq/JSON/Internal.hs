@@ -4,7 +4,12 @@
 {-# LANGUAGE OverloadedStrings     #-}
 {-# LANGUAGE UndecidableInstances  #-}
 
-module Network.Wreq.JSON.Internal where
+module Network.Wreq.JSON.Internal
+  ( get
+  , getWith
+  , post
+  , postWith
+  ) where
 
 import           Control.Exception
 import           Control.Monad.Except
@@ -29,6 +34,12 @@ post :: (MonadRequest m a, ToJSON a) => a -> m (Response a)
 post request = do
   url <- getURL request
   run $ W.post url (toJSON request)
+
+postWith :: (MonadRequest m a, ToJSON a, ToOptions m a) => a -> m (Response a)
+postWith request = do
+  options <- toOptions request
+  url <- getURL request
+  run $ W.postWith options url (toJSON request)
 
 run :: MonadResponse m a => IO (W.Response ByteString) -> m (Response a)
 run request = do

@@ -22,9 +22,8 @@ data Get = Get
 instance Monad m => ToURL m Get where
   toURL _ = return ["http://httpbin.org", "get"]
 
-data instance Response Get = GetResponse
-  { getResponseUrl :: Text
-  } deriving (Eq, Show)
+data instance Response Get = GetResponse Text
+  deriving (Eq, Show)
 
 instance FromJSON (Response Get) where
   parseJSON =
@@ -41,9 +40,8 @@ instance MonadReader (ByteString, ByteString) m => ToOptions m BasicAuth where
     (user, password) <- ask
     return $ W.defaults & W.auth ?~ W.basicAuth user password
 
-data instance Response BasicAuth = BasicAuthResponse
-  { basicAuthResponseAuthenticated :: Bool
-  } deriving (Eq, Show)
+data instance Response BasicAuth = BasicAuthResponse Bool
+  deriving (Eq, Show)
 
 instance FromJSON (Response BasicAuth) where
   parseJSON =
@@ -58,14 +56,42 @@ instance Monad m => ToURL m Post where
 instance ToJSON Post where
   toJSON _ = object []
 
-data instance Response Post = PostResponse
-  { postResponseUrl :: Text
-  } deriving (Eq, Show)
+data instance Response Post = PostResponse Text
+  deriving (Eq, Show)
 
 instance FromJSON (Response Post) where
   parseJSON =
     withObject "PostResponse" $ \o ->
       PostResponse <$> o .: "url"
+
+data PostWithHeader = PostWithHeader
+
+instance Monad m => ToURL m PostWithHeader where
+  toURL _ = return ["http://httpbin.org", "post"]
+
+instance MonadReader ByteString m => ToOptions m PostWithHeader where
+  toOptions _ = do
+    header <- ask
+    return $ W.defaults & W.header "Custom-Header" .~ [header]
+
+instance ToJSON PostWithHeader where
+  toJSON _ = object []
+
+data CustomHeader = CustomHeader Text
+  deriving (Eq, Show)
+
+data instance Response PostWithHeader = PostWithHeaderResponse CustomHeader
+  deriving (Eq, Show)
+
+instance FromJSON CustomHeader where
+  parseJSON =
+    withObject "CustomHeader" $ \o ->
+      CustomHeader <$> o .: "Custom-Header"
+
+instance FromJSON (Response PostWithHeader) where
+  parseJSON =
+    withObject "PostWithHeaderResponse" $ \o ->
+      PostWithHeaderResponse <$> o .: "headers"
 
 spec :: Spec
 spec = do
@@ -86,3 +112,9 @@ spec = do
       runExceptT (post Post)
         `shouldReturn`
           Right (PostResponse "http://httpbin.org/post")
+
+  describe "postWith" $
+    it "authenticates using basic auth" $ do
+      runReaderT (runExceptT (postWith PostWithHeader)) "value"
+        `shouldReturn`
+          Right (PostWithHeaderResponse (CustomHeader "value"))
