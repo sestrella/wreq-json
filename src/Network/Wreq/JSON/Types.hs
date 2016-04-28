@@ -17,7 +17,7 @@ import qualified Network.Wreq         as W
 
 type MonadClient m = (MonadIO m, MonadError ClientError m)
 type MonadResponse m a = (MonadClient m, FromResponse (Response a))
-type MonadRequest m a = (MonadResponse m a, ToURL a)
+type MonadRequest m a = (MonadResponse m a, ToURL m a)
 
 data ClientError
   = ClientHttpError HttpException
@@ -29,8 +29,8 @@ instance Eq ClientError where
 
 data family Response a
 
-class ToURL a where
-  toURL :: a -> [Text]
+class Monad m => ToURL m a where
+  toURL :: a -> m [Text]
 
 class Monad m => ToOptions m a where
   toOptions :: a -> m W.Options

@@ -15,15 +15,20 @@ import qualified Network.Wreq            as W
 import           Network.Wreq.JSON.Types
 
 get :: MonadRequest m a => a -> m (Response a)
-get = run . W.get . url
+get request = do
+  url <- getURL request
+  run $ W.get url
 
 getWith :: (MonadRequest m a, ToOptions m a) => a -> m (Response a)
 getWith request = do
   options <- toOptions request
-  run $ W.getWith options (url request)
+  url <- getURL request
+  run $ W.getWith options url
 
 post :: (MonadRequest m a, ToJSON a) => a -> m (Response a)
-post request = run $ W.post (url request) (toJSON request)
+post request = do
+  url <- getURL request
+  run $ W.post url (toJSON request)
 
 run :: MonadResponse m a => IO (W.Response ByteString) -> m (Response a)
 run request = do
@@ -35,5 +40,5 @@ run request = do
         Left decodeError -> throwError $ ClientDecodeError decodeError
         Right result     -> return result
 
-url :: ToURL a => a -> String
-url = T.unpack . T.intercalate "/" . toURL
+getURL :: ToURL m a => a -> m String
+getURL = fmap (T.unpack . T.intercalate "/") . toURL

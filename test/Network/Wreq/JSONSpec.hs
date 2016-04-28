@@ -19,8 +19,8 @@ import           Test.Hspec
 
 data Get = Get
 
-instance ToURL Get where
-  toURL _ = ["http://httpbin.org", "get"]
+instance Monad m => ToURL m Get where
+  toURL _ = return ["http://httpbin.org", "get"]
 
 data instance Response Get = GetResponse
   { getResponseUrl :: Text
@@ -33,8 +33,8 @@ instance FromJSON (Response Get) where
 
 data BasicAuth = BasicAuth
 
-instance ToURL BasicAuth where
-  toURL _ = ["http://httpbin.org", "basic-auth", "user", "password"]
+instance Monad m => ToURL m BasicAuth where
+  toURL _ = return ["http://httpbin.org", "basic-auth", "user", "password"]
 
 instance MonadReader (ByteString, ByteString) m => ToOptions m BasicAuth where
   toOptions _ = do
@@ -52,8 +52,8 @@ instance FromJSON (Response BasicAuth) where
 
 data Post = Post
 
-instance ToURL Post where
-  toURL _ = ["http://httpbin.org", "post"]
+instance Monad m => ToURL m Post where
+  toURL _ = return ["http://httpbin.org", "post"]
 
 instance ToJSON Post where
   toJSON _ = object []
