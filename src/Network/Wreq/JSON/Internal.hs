@@ -67,6 +67,11 @@ deleteWith request = do
   url <- getURL request
   run $ W.deleteWith options url
 
+customMethod :: (MonadRequest m a) => String -> a -> m (Response a)
+customMethod method request = do
+  url <- getURL request
+  run $ W.customMethod method url
+
 run :: MonadResponse m a => IO (W.Response ByteString) -> m (Response a)
 run request = do
   eitherResponse <- liftIO $ try request
